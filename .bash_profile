@@ -17,7 +17,7 @@ test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shel
 
 OH_MY_BASH_DIR=".oh-my-bash"
 DIR="$HOME/$OH_MY_BASH_DIR"
-FROM_DIR="/tmp/.dotfilerepo/devzero-dotfiles"
+FROM_DIR="/tmp/.dotfilerepo"
 # look for empty dir
 if [ -d "$DIR" ]
 then
