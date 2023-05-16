@@ -114,3 +114,7 @@ alias kgd="k get deployments"
 alias kgdy="k get deployments -o yaml"
 alias kge="kubectl get events --sort-by=.metadata.creationTimestamp "
 alias kdp="k delete pod --wait=0 "
+
+htopid () {
+  htop -p $(ps -ef | awk -v proc=$1 'BEGIN{pids[proc]=1;printf "%s",proc} {if(pids[$3]==1){printf ",%s",$2; pids[$2]=1}}')
+}
