@@ -118,3 +118,5 @@ alias kdp="k delete pod --wait=0 "
 htopid () {
   htop -p $(ps -ef | awk -v proc=$1 'BEGIN{pids[proc]=1;printf "%s",proc} {if(pids[$3]==1){printf ",%s",$2; pids[$2]=1}}')
 }
+
+alias dummypod='kubectl run -i --tty --rm debug --image=debian --restart=Never -- bash'
