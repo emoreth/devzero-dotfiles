@@ -120,3 +120,44 @@ htopid () {
 }
 
 alias dummypod='kubectl run -i --tty --rm debug --image=debian --restart=Never -- bash'
+
+jc() {
+  jira issue create --no-input -t Task -s "${*:1}"
+}
+
+jcb() {
+  jira issue create --project DEV --type Bug --no-input -s "${*:1}"
+}
+
+jct() {
+  local PROJECT="DEV"
+  local ISSUE_CREATE=$(jira issue create --project $PROJECT --type Task --no-input -s "$1" -b "$2")
+  local ISSUE_ID=$(echo $ISSUE_CREATE | grep -o -E 'browse\/.+' | sed 's/browse\///')
+  local LAST_CREATED=""
+  echo $ISSUE_CREATE
+
+  while [ "$ISSUE_ID" != "$LAST_CREATED" ]; do
+    # Call the function to update LAST_CREATED
+    echo "Waiting for issue to show up in jira API: ISSUE_ID: $ISSUE_ID - LAST_CREATED: $LAST_CREATED"
+    LAST_CREATED=$(jira issue list --project $PROJECT  --paginate 1 --no-headers --columns KEY --plain)
+    sleep 1
+  done
+
+  jira issue move --project $PROJECT $ISSUE_ID "To Do"
+
+  echo "To work on this issue run (or just paste it):"
+  echo "workon $ISSUE_ID"
+  echo -n "workon $ISSUE_ID" | pbcopy
+}
+
+workon() {
+  local PROJECT=$(echo $1 | sed -E 's/-[0-9]+//')
+  local branch_name=$(jira issue list -q"KEY=$1" --project $PROJECT --plain --columns KEY,SUMMARY --no-headers | sed 's/ /_/g; s/\t/_/g')
+  git checkout main
+  git fetch --prune
+  git pull --rebase
+  git checkout -b $branch_name
+  git push origin $branch_name
+  jira issue move "$1" "In Progress" --project $PROJECT
+  jira issue assign "$1" $(jira me) --project $PROJECT
+}
